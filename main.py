@@ -83,7 +83,7 @@ class TimerWindow(QMainWindow):
 
         # Create horizontal layout for buttons
         buttons_layout = QHBoxLayout()
-        buttons_layout.setSpacing(0)  # Space between buttons
+        buttons_layout.setSpacing(10)  # Space between buttons
 
         # Create three gradient icon buttons
         self.note_button = GradientIconButton("resources/icons/button_prototype.png")
@@ -91,10 +91,10 @@ class TimerWindow(QMainWindow):
         self.close_app_button = GradientIconButton("resources/icons/button_prototype.png")
 
         # Make them square-shaped
-        button_size = 30
+        button_size = 40
         for button in [self.note_button, self.settings_button, self.close_app_button]:
             button.setFixedSize(button_size, button_size)
-            button.setIconScale(0.3)  # Scale icon to 40% of original size
+            button.setIconScale(0.4)  # Scale icon to 40% of original size
 
         # Connect the close button
         self.close_app_button.clicked.connect(QApplication.quit)
