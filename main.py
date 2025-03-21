@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont, QFontDatabase, QLinearGradient, QPainter, QColor, QPen, QBrush
+from settings_window import SettingsWindow
 
 try:
     import win32gui
@@ -86,18 +87,19 @@ class TimerWindow(QMainWindow):
         buttons_layout.setSpacing(10)  # Space between buttons
 
         # Create three gradient icon buttons
-        self.note_button = GradientIconButton("resources/icons/button_prototype.png")
-        self.settings_button = GradientIconButton("resources/icons/button_prototype.png")
-        self.close_app_button = GradientIconButton("resources/icons/button_prototype.png")
+        self.note_button = GradientIconButton("resources/icons/notes_300.png")
+        self.settings_button = GradientIconButton("resources/icons/settings_300.png")
+        self.close_app_button = GradientIconButton("resources/icons/close_300.png")
 
         # Make them square-shaped
         button_size = 40
         for button in [self.note_button, self.settings_button, self.close_app_button]:
             button.setFixedSize(button_size, button_size)
-            button.setIconScale(0.4)  # Scale icon to 40% of original size
+            button.setIconScale(0.125)  # Scale icon to 40% of original size
 
         # Connect the close button
         self.close_app_button.clicked.connect(QApplication.quit)
+        self.settings_button.clicked.connect(self.open_settings)
         
         # Add buttons to the horizontal layout
         buttons_layout.addWidget(self.note_button)
@@ -120,6 +122,18 @@ class TimerWindow(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_time)
         self.timer.start(1000)  # Update every second
+
+        # Add this after creating your buttons and adding them to the layout
+        # Variable to track if buttons are visible
+        self.buttons_visible = True
+
+        # Create a timer for hiding buttons
+        self.hide_buttons_timer = QTimer(self)
+        self.hide_buttons_timer.timeout.connect(self.hide_buttons)
+        self.hide_buttons_timer.setSingleShot(True)  # Run only once when started
+
+        # Hide buttons after 5 seconds initially
+        self.show_buttons_temporarily()
         
         # Set up Windows-specific topmost behavior
         if USING_WINDOWS:
@@ -151,6 +165,10 @@ class TimerWindow(QMainWindow):
             button.setGradientColors(start_color, end_color)
         
     def mousePressEvent(self, event):
+        # Reset the timer and show buttons whenever the user clicks
+        self.show_buttons_temporarily()
+        
+        # Keep your existing dragging code
         if event.button() == Qt.LeftButton:
             self.dragging = True
             self.offset = event.pos()
@@ -172,6 +190,79 @@ class TimerWindow(QMainWindow):
         if USING_WINDOWS:
             self.ensure_topmost()
 
+    # Add these methods to your TimerWindow class
+    def open_settings(self):
+        """Open the settings window"""
+        # Calculate current scale based on font size compared to default
+        current_scale = self.time_label.font().pointSize() / 50
+        
+        # Create and show settings window
+        self.settings_dialog = SettingsWindow(self, current_scale)
+        
+        # Connect the settings changed signal
+        self.settings_dialog.settingsChanged.connect(self.apply_size_change)
+        
+        # Show the dialog
+        self.settings_dialog.show()
+
+    def apply_size_change(self, scale_factor):
+        """Apply size changes from settings"""
+        # Store the original scale if not already stored
+        if not hasattr(self, 'original_scale'):
+            self.original_scale = 1.0  # Default base scale
+            
+            # Store original UI metrics
+            self.original_button_size = 40
+            self.original_font_size = 50
+            self.original_spacing = 10
+            self.original_width = 200
+            self.original_height = 80
+        
+        # Update font size based on original size
+        font = self.time_label.font()
+        new_size = int(self.original_font_size * scale_factor)
+        font.setPointSize(new_size)
+        self.time_label.setFont(font)
+        
+        # Update button sizes based on original size
+        button_size = int(self.original_button_size * scale_factor)
+        for button in [self.note_button, self.settings_button, self.close_app_button]:
+            button.setFixedSize(button_size, button_size)
+            # Adjust icon scale proportionally
+            button.setIconScale(0.125 * scale_factor)
+        
+        # Update layout margins and spacing based on original spacing
+        layout = self.centralWidget().layout()
+        buttons_layout = layout.itemAt(1).layout()
+        buttons_layout.setSpacing(int(self.original_spacing * scale_factor))
+        
+        # Adjust window size based on original dimensions
+        new_width = int(self.original_width * scale_factor)
+        new_height = int(self.original_height * scale_factor)
+        self.resize(new_width, new_height)
+        
+        # Store the current scale factor for future reference
+        self.current_scale = scale_factor
+
+    def show_buttons_temporarily(self):
+        """Show buttons for 5 seconds then hide them"""
+        # Show the buttons
+        self.set_buttons_visibility(True)
+        
+        # Start the timer to hide buttons after 5 seconds
+        self.hide_buttons_timer.start(3000)  # 3000 ms = 3 seconds
+
+    def hide_buttons(self):
+        """Hide the buttons"""
+        self.set_buttons_visibility(False)
+
+    def set_buttons_visibility(self, visible):
+        """Set the visibility of all buttons"""
+        self.buttons_visible = visible
+        
+        # Apply visibility to all buttons
+        for button in [self.note_button, self.settings_button, self.close_app_button]:
+            button.setVisible(visible)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

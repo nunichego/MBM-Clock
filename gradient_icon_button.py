@@ -48,7 +48,7 @@ class GradientIconButton(QPushButton):
         
         # Set the gradient-applied icon
         self.setIcon(QIcon(pixmap))
-        self.setIconSize(QSize(pixmap.width() // 3, pixmap.height() // 3))  # Scale down by default
+        self.setIconSize(QSize(pixmap.width() // 9, pixmap.height() // 9))  # Scale down by default
     
     def setGradientColors(self, start_color, end_color):
         """Update the gradient colors and refresh the icon"""
