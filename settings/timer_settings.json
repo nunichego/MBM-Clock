@@ -1,0 +1,19 @@
+{
+    "scale": 1.0,
+    "phases": [
+        {
+            "name": "By yourself",
+            "minutes": 1,
+            "seconds": 0,
+            "break_minutes": 0,
+            "break_seconds": 10
+        },
+        {
+            "name": "2nd",
+            "minutes": 0,
+            "seconds": 30,
+            "break_minutes": 0,
+            "break_seconds": 10
+        }
+    ]
+}
