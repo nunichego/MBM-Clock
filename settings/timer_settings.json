@@ -1,19 +1,20 @@
 {
-    "scale": 1.0,
+    "scale": 1.02,
     "phases": [
         {
-            "name": "By yourself",
-            "minutes": 1,
-            "seconds": 0,
-            "break_minutes": 0,
-            "break_seconds": 10
+            "name": "Trying youself",
+            "minutes": 0,
+            "seconds": 25
         },
         {
-            "name": "2nd",
+            "name": "Asking LLM for Advice",
             "minutes": 0,
-            "seconds": 30,
-            "break_minutes": 0,
-            "break_seconds": 10
+            "seconds": 20
+        },
+        {
+            "name": "Asking LLM for Solution",
+            "minutes": 0,
+            "seconds": 15
         }
     ]
 }

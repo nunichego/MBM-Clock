@@ -7,17 +7,20 @@ class GradientIconButton(QPushButton):
         super().__init__(parent)
         self.original_pixmap = QPixmap(icon_path)
         self.start_color = QColor(255, 0, 255)    # Default magenta
-        self.end_color = QColor(0, 255, 255)  # Default cyan
+        self.end_color = QColor(0, 255, 255)      # Default cyan
         
         # Set button properties
         self.setFlat(True)
         self.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
-                border: 1px solid rgba(128, 128, 128, 50);
+                border: none;  /* Remove the border */
             }
             QPushButton:hover {
-                background-color: rgba(255, 255, 255, 30);
+                background-color: rgba(255, 255, 255, 10);  /* Very subtle hover effect */
+            }
+            QPushButton:pressed {
+                background-color: rgba(0, 0, 0, 10);  /* Very subtle pressed effect */
             }
         """)
         
@@ -48,7 +51,12 @@ class GradientIconButton(QPushButton):
         
         # Set the gradient-applied icon
         self.setIcon(QIcon(pixmap))
-        self.setIconSize(QSize(pixmap.width() // 9, pixmap.height() // 9))  # Scale down by default
+        
+        # Set a fixed size for the button that matches the icon size to ensure click area
+        # preserves the intended rectangular area
+        if not self.original_pixmap.isNull():
+            iconSize = self.iconSize()
+            self.setFixedSize(iconSize.width() + 10, iconSize.height() + 10)  # Add padding
     
     def setGradientColors(self, start_color, end_color):
         """Update the gradient colors and refresh the icon"""
@@ -62,20 +70,5 @@ class GradientIconButton(QPushButton):
             new_width = int(self.original_pixmap.width() * scale_factor)
             new_height = int(self.original_pixmap.height() * scale_factor)
             self.setIconSize(QSize(new_width, new_height))
-
-# Example modifications to your TimerWindow class:
-"""
-# Replace your button creation with:
-self.note_button = GradientIconButton("resources/icons/button_prototype.png")
-self.settings_button = GradientIconButton("resources/icons/button_prototype.png")
-self.close_app_button = GradientIconButton("resources/icons/button_prototype.png")
-
-# Set custom sizes if needed
-button_size = 40
-for button in [self.note_button, self.settings_button, self.close_app_button]:
-    button.setFixedSize(button_size, button_size)
-    button.setIconScale(0.4)  # Scale icon to 40% of original size
-
-# Connect the close button
-self.close_app_button.clicked.connect(QApplication.quit)
-"""
+            # Update the button size to match icon size plus padding
+            self.setFixedSize(new_width + 10, new_height + 10)

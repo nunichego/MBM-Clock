@@ -50,9 +50,7 @@ class SettingsManager:
                 {
                     'name': 'Phase',
                     'minutes': 30,
-                    'seconds': 0,
-                    'break_minutes': 5,
-                    'break_seconds': 0
+                    'seconds': 0
                 }
             ]
         }
@@ -83,7 +81,5 @@ class SettingsManager:
         return {
             'name': phase.name,
             'minutes': phase.minutes,
-            'seconds': phase.seconds,
-            'break_minutes': phase.break_minutes,
-            'break_seconds': phase.break_seconds
+            'seconds': phase.seconds
         }

@@ -1,26 +1,20 @@
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                            QSlider, QPushButton, QFrame, QComboBox,
                            QLineEdit, QScrollArea, QWidget, QSpinBox,
-                           QGridLayout, QApplication)
+                           QGridLayout, QApplication, QGraphicsDropShadowEffect)
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont, QColor, QIntValidator
 
 class PhaseSettings:
     """Class to store phase settings"""
-    def __init__(self, name="Phase", minutes=30, seconds=0, break_minutes=5, break_seconds=0):
+    def __init__(self, name="Phase", minutes=30, seconds=0):
         self.name = name
         self.minutes = minutes
         self.seconds = seconds
-        self.break_minutes = break_minutes
-        self.break_seconds = break_seconds
     
     def get_total_seconds(self):
         """Get total seconds for this phase"""
         return self.minutes * 60 + self.seconds
-    
-    def get_break_total_seconds(self):
-        """Get total seconds for the break of this phase"""
-        return self.break_minutes * 60 + self.break_seconds
 
 
 class SettingsWindow(QDialog):
@@ -45,8 +39,11 @@ class SettingsWindow(QDialog):
         else:
             self.phases = phases
         
-        # Apply global stylesheet
-        self.apply_dark_stylesheet()
+        # Set up fonts
+        self.setup_fonts()
+        
+        # Apply modern stylesheet
+        self.apply_modern_stylesheet()
         
         # Set up the UI
         self.setup_ui()
@@ -56,101 +53,139 @@ class SettingsWindow(QDialog):
         screen_rect = desktop.availableGeometry(self)
         self.move(screen_rect.center() - self.rect().center())
     
-    def apply_dark_stylesheet(self):
-        """Apply a consistent dark theme to all widgets"""
+    def setup_fonts(self):
+        """Set up custom fonts for the application"""
+        # Try to use Calibri if available, otherwise fall back to system sans-serif
+        self.regular_font = QFont("Calibri", 11)
+        self.bold_font = QFont("Calibri", 12)
+        self.bold_font.setBold(True)
+        self.title_font = QFont("Calibri", 16)
+        self.title_font.setBold(True)
+    
+    def create_shadow_effect(self):
+        """Create a shadow effect for the main frame"""
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(20)
+        shadow.setColor(QColor(0, 0, 0, 100))
+        shadow.setOffset(0, 0)
+        return shadow
+    
+    def apply_modern_stylesheet(self):
+        """Apply a modern minimalist theme"""
         self.setStyleSheet("""
             QDialog {
                 background-color: transparent;
             }
-            QFrame {
-                background-color: rgba(30, 30, 30, 220);
-                border-radius: 10px;
-                border: 1px solid rgba(120, 120, 120, 100);
+            QFrame#settingsContainer {
+                background-color: rgb(40, 40, 40);
+                border-radius: 15px;
+                border: none;
             }
             QWidget {
                 background-color: transparent;
             }
             QLabel {
-                color: white;
-            }
-            QComboBox, QLineEdit, QSpinBox {
-                background-color: rgba(60, 60, 60, 180);
-                color: white;
-                border-radius: 5px;
-                padding: 5px;
-                selection-background-color: rgba(70, 130, 180, 150);
-            }
-            QComboBox::drop-down {
+                color: rgb(240, 240, 240);
+                background-color: transparent;
                 border: none;
-                width: 20px;
             }
-            QComboBox QAbstractItemView {
-                background-color: rgba(45, 45, 45, 230);
-                border: 1px solid rgba(80, 80, 80, 120);
-                selection-background-color: rgba(0, 255, 255, 50);
+            QLineEdit, QComboBox, QSpinBox {
+                background-color: rgb(55, 55, 55);
                 color: white;
+                border-radius: 8px;
+                padding: 6px 10px;
+                border: none;
+                selection-background-color: rgb(70, 130, 180);
+            }
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+                background-color: rgb(60, 60, 60);
             }
             QPushButton {
-                background-color: rgba(60, 60, 60, 180);
+                background-color: rgb(55, 55, 55);
                 color: white;
-                border-radius: 5px;
-                padding: 8px 16px;
+                border-radius: 8px;
+                padding: 6px 12px;
+                border: none;
             }
             QPushButton:hover {
-                background-color: rgba(80, 80, 80, 180);
+                background-color: rgb(65, 65, 65);
             }
-            QSlider::groove:horizontal {
-                height: 8px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
-                                          stop:0 rgba(0, 255, 255, 150), 
-                                          stop:1 rgba(255, 0, 255, 150));
-                border-radius: 4px;
-            }
-            QSlider::handle:horizontal {
-                background: white;
-                border: 1px solid #777;
-                width: 16px;
-                margin-top: -5px;
-                margin-bottom: -5px;
-                border-radius: 8px;
+            QPushButton:pressed {
+                background-color: rgb(50, 50, 50);
             }
             QScrollArea {
                 background-color: transparent;
                 border: none;
             }
             QScrollBar:vertical {
-                background: rgba(40, 40, 40, 120);
+                background: rgb(45, 45, 45);
                 width: 10px;
                 margin: 0px;
             }
             QScrollBar::handle:vertical {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
-                                          stop:0 rgba(0, 255, 255, 150), 
-                                          stop:1 rgba(255, 0, 255, 150));
+                                           stop:0 rgb(0, 255, 255), 
+                                           stop:1 rgb(255, 0, 255));
                 min-height: 20px;
                 border-radius: 5px;
             }
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
                 height: 0px;
             }
+            QSlider::groove:horizontal {
+                height: 8px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                           stop:0 rgb(0, 255, 255), 
+                                           stop:1 rgb(255, 0, 255));
+                border-radius: 4px;
+            }
+            QSlider::handle:horizontal {
+                background: white;
+                border: none;
+                width: 16px;
+                height: 16px;
+                margin: -4px 0;
+                border-radius: 8px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox::down-arrow {
+                width: 12px;
+                height: 12px;
+            }
+            QComboBox QAbstractItemView {
+                background-color: rgb(50, 50, 50);
+                border: none;
+                selection-background-color: rgb(70, 130, 180);
+                color: white;
+            }
+            QFrame#phaseFrame {
+                background-color: rgb(45, 45, 45);
+                border-radius: 10px;
+                border: none;
+            }
         """)
     
     def setup_ui(self):
-        # Main layout
+        # Main layout with margins for shadow effect
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(15, 15, 15, 15)
         
-        # Create a frame with rounded corners and semi-transparent background
+        # Create a frame with rounded corners
         container = QFrame(self)
         container.setObjectName("settingsContainer")
+        container.setGraphicsEffect(self.create_shadow_effect())
         
         container_layout = QVBoxLayout(container)
         container_layout.setSpacing(20)
+        container_layout.setContentsMargins(24, 24, 24, 24)
         
         # Title
         title_label = QLabel("Settings")
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("color: white; font-size: 18px; font-weight: bold;")
+        title_label.setFont(self.title_font)
         container_layout.addWidget(title_label)
         
         # Create a scroll area for settings
@@ -168,6 +203,7 @@ class SettingsWindow(QDialog):
         
         # Size label
         size_label = QLabel("Timer Size")
+        size_label.setFont(self.bold_font)
         size_layout.addWidget(size_label)
         
         # Size slider and value
@@ -180,6 +216,7 @@ class SettingsWindow(QDialog):
         
         # Value label
         self.size_value = QLabel(f"{self.current_scale:.1f}x")
+        self.size_value.setFont(self.regular_font)
         self.size_value.setMinimumWidth(40)
         
         slider_value_layout.addWidget(self.size_slider)
@@ -196,12 +233,14 @@ class SettingsWindow(QDialog):
         
         # Label
         phases_label = QLabel("Number of Phases")
+        phases_label.setFont(self.bold_font)
         phases_layout.addWidget(phases_label)
         
         # Combo box for number of phases
         self.phases_combo = QComboBox()
         self.phases_combo.addItems(["1", "2", "3", "4", "5"])
         self.phases_combo.setCurrentIndex(len(self.phases) - 1)  # Set based on current phases
+        self.phases_combo.setFont(self.regular_font)
         
         phases_layout.addWidget(self.phases_combo)
         settings_layout.addLayout(phases_layout)
@@ -227,12 +266,14 @@ class SettingsWindow(QDialog):
         
         # Apply button
         self.apply_button = QPushButton("Apply")
+        self.apply_button.setFont(self.bold_font)
         
         # Cancel button
         self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.setFont(self.regular_font)
         
-        buttons_layout.addWidget(self.apply_button)
         buttons_layout.addWidget(self.cancel_button)
+        buttons_layout.addWidget(self.apply_button)
         
         container_layout.addLayout(buttons_layout)
         main_layout.addWidget(container)
@@ -242,8 +283,8 @@ class SettingsWindow(QDialog):
         self.cancel_button.clicked.connect(self.reject)
         
         # Set dynamic size for dialog
-        self.setMinimumSize(400, 500)
-        self.setMaximumSize(500, 800)
+        self.setMinimumSize(450, 600)
+        self.setMaximumSize(550, 800)
     
     def create_phase_settings(self):
         """Create UI elements for each phase"""
@@ -260,16 +301,21 @@ class SettingsWindow(QDialog):
         for i, phase in enumerate(self.phases):
             # Create a frame for this phase
             phase_frame = QFrame()
+            phase_frame.setObjectName("phaseFrame")
             
             # Layout for this phase
             phase_layout = QVBoxLayout(phase_frame)
+            phase_layout.setContentsMargins(15, 15, 15, 15)
+            phase_layout.setSpacing(15)
             
             # Phase title with name field
             title_layout = QHBoxLayout()
             ordinal = ["1st", "2nd", "3rd", "4th", "5th"][i]
             phase_title = QLabel(f"{ordinal} Phase Name:")
+            phase_title.setFont(self.bold_font)
             
             name_edit = QLineEdit(phase.name)
+            name_edit.setFont(self.regular_font)
             name_edit.setProperty("phaseIndex", i)
             name_edit.textChanged.connect(lambda text, idx=i: self.update_phase_name(idx, text))
             
@@ -279,65 +325,42 @@ class SettingsWindow(QDialog):
             
             # Duration settings
             duration_layout = QGridLayout()
+            duration_layout.setVerticalSpacing(10)
+            duration_layout.setHorizontalSpacing(5)
             
             # Work duration
             duration_label = QLabel("Length:")
+            duration_label.setFont(self.regular_font)
             
             minutes_spin = QSpinBox()
             minutes_spin.setRange(0, 180)
             minutes_spin.setValue(phase.minutes)
+            minutes_spin.setFont(self.regular_font)
             minutes_spin.setProperty("phaseIndex", i)
-            minutes_spin.setProperty("timeType", "work")
             minutes_spin.valueChanged.connect(
                 lambda value, idx=i: self.update_phase_time(idx, "minutes", value)
             )
             
             minutes_label = QLabel("min")
+            minutes_label.setFont(self.regular_font)
             
             seconds_spin = QSpinBox()
             seconds_spin.setRange(0, 59)
             seconds_spin.setValue(phase.seconds)
+            seconds_spin.setFont(self.regular_font)
             seconds_spin.setProperty("phaseIndex", i)
             seconds_spin.valueChanged.connect(
                 lambda value, idx=i: self.update_phase_time(idx, "seconds", value)
             )
             
             seconds_label = QLabel("sec")
+            seconds_label.setFont(self.regular_font)
             
             duration_layout.addWidget(duration_label, 0, 0)
             duration_layout.addWidget(minutes_spin, 0, 1)
             duration_layout.addWidget(minutes_label, 0, 2)
             duration_layout.addWidget(seconds_spin, 0, 3)
             duration_layout.addWidget(seconds_label, 0, 4)
-            
-            # Break duration
-            break_label = QLabel("Break:")
-            
-            break_min_spin = QSpinBox()
-            break_min_spin.setRange(0, 60)
-            break_min_spin.setValue(phase.break_minutes)
-            break_min_spin.setProperty("phaseIndex", i)
-            break_min_spin.valueChanged.connect(
-                lambda value, idx=i: self.update_phase_time(idx, "break_minutes", value)
-            )
-            
-            break_min_label = QLabel("min")
-            
-            break_sec_spin = QSpinBox()
-            break_sec_spin.setRange(0, 59)
-            break_sec_spin.setValue(phase.break_seconds)
-            break_sec_spin.setProperty("phaseIndex", i)
-            break_sec_spin.valueChanged.connect(
-                lambda value, idx=i: self.update_phase_time(idx, "break_seconds", value)
-            )
-            
-            break_sec_label = QLabel("sec")
-            
-            duration_layout.addWidget(break_label, 1, 0)
-            duration_layout.addWidget(break_min_spin, 1, 1)
-            duration_layout.addWidget(break_min_label, 1, 2)
-            duration_layout.addWidget(break_sec_spin, 1, 3)
-            duration_layout.addWidget(break_sec_label, 1, 4)
             
             phase_layout.addLayout(duration_layout)
             

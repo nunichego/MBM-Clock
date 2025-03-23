@@ -1,0 +1,72 @@
+[
+    {
+        "timestamp": "21:13:40",
+        "phases": [
+            {
+                "name": "Trying youself",
+                "status": "Finished",
+                "cheated": false
+            }
+        ],
+        "status": "Completed Clean",
+        "task_name": "Test"
+    },
+    {
+        "timestamp": "21:30:00",
+        "phases": [
+            {
+                "name": "Trying youself",
+                "status": "Finished",
+                "cheated": false
+            },
+            {
+                "name": "Asking LLM for Advice",
+                "status": "Finished",
+                "cheated": true
+            },
+            {
+                "name": "Asking LLM for Solution",
+                "status": "Finished",
+                "cheated": false
+            }
+        ],
+        "status": "Completed with Cheating",
+        "task_name": "Test Task"
+    },
+    {
+        "timestamp": "21:37:44",
+        "phases": [
+            {
+                "name": "Trying youself",
+                "status": "Finished",
+                "cheated": false
+            }
+        ],
+        "status": "Completed Clean",
+        "task_name": "123"
+    },
+    {
+        "timestamp": "21:45:06",
+        "phases": [
+            {
+                "name": "Trying youself",
+                "status": "Finished",
+                "cheated": false
+            }
+        ],
+        "status": "Completed Clean",
+        "task_name": "234"
+    },
+    {
+        "timestamp": "22:03:30",
+        "phases": [
+            {
+                "name": "Trying youself",
+                "status": "Finished",
+                "cheated": false
+            }
+        ],
+        "status": "Completed Clean",
+        "task_name": "324"
+    }
+]
