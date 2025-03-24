@@ -31,6 +31,11 @@ Mind Before Machine encourages a balanced approach: **think first, then enhance 
 
 ## How It Works
 
+**Demo:**
+https://github.com/user-attachments/assets/384bbc4d-cc35-456d-b418-b7a01305494d
+
+
+
 1. **Start a new task**: Name your current challenge/problem
 2. **Configure phases**: Set up multiple timed phases (e.g., "Think", "Research", "Plan", "Implement", "AI Assist")
 3. **Work through each phase**: The timer keeps you accountable to spending dedicated time in each stage
