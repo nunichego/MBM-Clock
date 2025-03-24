@@ -10,11 +10,9 @@ import subprocess
 from pathlib import Path
 
 def create_ico_if_missing():
-    """Create an .ico file from a PNG if needed"""
     try:
         from PIL import Image
         
-        # Check if icon.ico exists in resources/icons
         icon_path = Path('resources/icons/icon.ico')
         if icon_path.exists():
             print("Icon file already exists.")
@@ -26,7 +24,6 @@ def create_ico_if_missing():
             print("No PNG files found to convert to ICO.")
             return
             
-        # Use the first PNG file
         png_path = png_files[0]
         print(f"Converting {png_path} to {icon_path}")
         
@@ -45,14 +42,12 @@ def create_ico_if_missing():
         print(f"Error creating ICO file: {e}")
 
 def clean_build_directories():
-    """Remove build and dist directories if they exist"""
     for dir_name in ['build', 'dist']:
         if os.path.exists(dir_name):
             print(f"Removing {dir_name} directory...")
             shutil.rmtree(dir_name)
 
 def run_pyinstaller():
-    """Run PyInstaller with the spec file"""
     cmd = ['pyinstaller', 'timer_app.spec']
     print("Running PyInstaller...")
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -67,14 +62,12 @@ def run_pyinstaller():
     return result.returncode == 0
 
 def copy_resources_if_needed():
-    """Check if resources exists in the dist directory, copy if missing"""
     dist_resources = Path('dist/Mind_Before_Machine/resources')
     if not dist_resources.exists():
         print("Resources directory not found in dist, copying manually...")
         shutil.copytree('resources', dist_resources)
 
 def main():
-    """Main build function"""
     print("Starting build process...")
     
     # Create ico file if needed
@@ -90,7 +83,7 @@ def main():
         # Copy resources if needed
         copy_resources_if_needed()
         print("\nBuild completed successfully!")
-        print("Executable can be found in: dist/Mind_Before_Machine/Mind_Before_Machine.exe")
+        print("Executable can be found in: dist/Mind_Before_Machine/MBM Clock.exe")
     else:
         print("\nBuild failed. Check the errors above.")
     

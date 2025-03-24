@@ -24,11 +24,9 @@ class GradientIconButton(QPushButton):
             }
         """)
         
-        # Generate and apply the gradient icon
         self.update_gradient_icon()
     
     def update_gradient_icon(self):
-        """Apply the current gradient to the icon"""
         if self.original_pixmap.isNull():
             return  # Guard against invalid pixmap
             
@@ -52,20 +50,17 @@ class GradientIconButton(QPushButton):
         # Set the gradient-applied icon
         self.setIcon(QIcon(pixmap))
         
-        # Set a fixed size for the button that matches the icon size to ensure click area
         # preserves the intended rectangular area
         if not self.original_pixmap.isNull():
             iconSize = self.iconSize()
             self.setFixedSize(iconSize.width() + 10, iconSize.height() + 10)  # Add padding
     
     def setGradientColors(self, start_color, end_color):
-        """Update the gradient colors and refresh the icon"""
         self.start_color = start_color
         self.end_color = end_color
         self.update_gradient_icon()
     
     def setIconScale(self, scale_factor):
-        """Set icon size relative to original pixmap size"""
         if not self.original_pixmap.isNull():
             new_width = int(self.original_pixmap.width() * scale_factor)
             new_height = int(self.original_pixmap.height() * scale_factor)

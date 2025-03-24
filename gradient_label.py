@@ -23,17 +23,14 @@ class GradientLabel(QLabel):
         pen = QPen(QBrush(gradient), 1)
         painter.setPen(pen)
         
-        # Get the text size that would be natural for this font
         text_rect = painter.fontMetrics().boundingRect(self.text())
         
-        # Center it in our widget
+        # Center text in widget
         text_rect.moveCenter(self.rect().center())
         
-        # Draw the text in its natural dimensions
         painter.drawText(text_rect, Qt.AlignCenter, self.text())
     
     def setGradientColors(self, start_color, end_color):
-        """Update the gradient colors"""
         self.start_color = start_color
         self.end_color = end_color
         self.update()  # Trigger repaint

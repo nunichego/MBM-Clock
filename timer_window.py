@@ -34,8 +34,6 @@ class TimerWindow(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_time)
 
-
-        # Phases
         self.phase_cheated = [False] * 5
 
         # Add variable to track if task is active
@@ -146,11 +144,9 @@ class TimerWindow(QMainWindow):
         self.topmost_timer.start(500)  # Check every 500ms
     
     def ensure_topmost(self):
-        """Force window to stay on top using platform-specific handler"""
         PlatformHandler.ensure_window_topmost(self)
     
     def update_gradient_colors(self, start_color, end_color):
-        """Update the gradient colors for all gradient elements"""
         # Update the timer label gradient
         self.time_label.setGradientColors(start_color, end_color)
         
@@ -183,7 +179,6 @@ class TimerWindow(QMainWindow):
         self.ensure_topmost()
 
     def open_settings(self):
-        """Open the settings window"""
         # Calculate current scale based on font size compared to default
         current_scale = self.time_label.font().pointSize() / 50
         
@@ -197,7 +192,6 @@ class TimerWindow(QMainWindow):
         self.settings_dialog.show()
 
     def apply_size_change(self, scale_factor):
-        """Apply size changes from settings"""
         # Update font size based on original size
         font = self.time_label.font()
         new_size = int(self.original_font_size * scale_factor)
@@ -225,7 +219,6 @@ class TimerWindow(QMainWindow):
         self.current_scale = scale_factor
 
     def show_buttons_temporarily(self):
-        """Show buttons for 5 seconds then hide them"""
         # Show the buttons
         self.set_buttons_visibility(True)
         
@@ -233,11 +226,9 @@ class TimerWindow(QMainWindow):
         self.hide_buttons_timer.start(5000)  # 5000 ms = 5 seconds
 
     def hide_buttons(self):
-        """Hide the buttons"""
         self.set_buttons_visibility(False)
 
     def set_buttons_visibility(self, visible):
-        """Set the visibility of all buttons"""
         self.buttons_visible = visible
         
         # Apply visibility to all buttons
@@ -245,7 +236,6 @@ class TimerWindow(QMainWindow):
             button.setVisible(visible)
 
     def reset_timer_for_current_phase(self):
-        """Reset the timer based on the current phase"""
         if self.current_phase_index < len(self.phases):
             phase = self.phases[self.current_phase_index]
             # Set timer to phase duration
@@ -255,7 +245,6 @@ class TimerWindow(QMainWindow):
             self.update_time_display()
 
     def update_time(self):
-        """Updated timer tick function"""
         if self.seconds > 0:
             self.seconds -= 1
             self.update_time_display()
@@ -265,7 +254,6 @@ class TimerWindow(QMainWindow):
                 self.start_blinking()
 
     def update_time_display(self):
-        """Update the timer display"""
         minutes = self.seconds // 60
         seconds = self.seconds % 60
         time_str = f"{minutes:02d}:{seconds:02d}"
@@ -277,7 +265,6 @@ class TimerWindow(QMainWindow):
             self.setWindowTitle(f"{phase.name}")
 
     def toggle_blink_state(self):
-        """Toggle the blinking state"""
         self.blink_state = not self.blink_state
         
         if self.initial_state:  # Blinking green for new task
@@ -304,23 +291,18 @@ class TimerWindow(QMainWindow):
                 self.note_button.setGradientColors(self.original_colors[0], self.original_colors[1])
 
     def start_blinking(self, initial=False):
-        """Start the timer blinking when phase is complete or at startup"""
         self.is_blinking = True
         self.initial_state = initial
         
-        # Ensure seconds is 0 if in initial state (no task active)
         if initial and not self.task_active:
             self.seconds = 0
             self.update_time_display()
         
-        # Start blinking timer
         self.blink_timer.start(750)  # Blink every 0.75 seconds
         
-        # Stop the main timer
         self.timer.stop()
 
     def stop_blinking(self):
-        """Stop the timer blinking"""
         if self.is_blinking:
             self.is_blinking = False
             self.blink_timer.stop()
@@ -331,14 +313,11 @@ class TimerWindow(QMainWindow):
             self.note_button.setGradientColors(self.original_colors[0], self.original_colors[1])
 
     def open_notes(self):
-        """Open the notes window"""
-        # If blinking, handle phase completion
         timer_completed = False
         if self.is_blinking:
             self.stop_blinking()
             timer_completed = True
             
-            # Record the current phase status as completed legitimately
             if self.current_phase_index < len(self.phases):
                 phase = self.phases[self.current_phase_index]
                 phase_entry = {
@@ -362,7 +341,6 @@ class TimerWindow(QMainWindow):
         self.show_notes_window(timer_completed)
 
     def show_notes_window(self, timer_completed=False):
-        """Show the notes window with proper blinking parameters"""
         # Check if this is the last phase
         is_last_phase = (self.current_phase_index == len(self.phases) - 1)
         
@@ -395,21 +373,17 @@ class TimerWindow(QMainWindow):
         self.notes_dialog.taskCompletedRequested.connect(self.complete_task)
         self.notes_dialog.newTaskRequested.connect(self.start_new_task)
         
-        # Show the dialog - using exec_() makes it modal
         self.notes_dialog.exec_()
 
     def start_new_task(self):
-        """Start a new task by showing the task name dialog"""
         self.task_name_dialog = TaskNameDialog(self)
         self.task_name_dialog.taskNameSubmitted.connect(self.initialize_task)
         self.task_name_dialog.show()
 
     def initialize_task(self, task_name):
-        """Initialize a new task with the given name"""
         self.current_task_name = task_name
         self.task_active = True
         
-        # Reset phase history and status
         self.phase_history = []
         self.current_phase_index = 0
         self.phase_cheated = [False] * 5
@@ -426,9 +400,7 @@ class TimerWindow(QMainWindow):
         print(f"New task started: {task_name}")
 
     def complete_task(self):
-        """Handle task completion"""
         try:
-            # Make sure we have at least one entry in the phase history
             if not self.phase_history and self.current_phase_index < len(self.phases):
                 # Create an entry for the current phase
                 phase = self.phases[self.current_phase_index]
@@ -439,14 +411,11 @@ class TimerWindow(QMainWindow):
                 }
                 self.phase_history.append(phase_entry)
             
-            # Determine if any phase was cheated using Next Phase button
-            # (we only count "cheated" if it was marked that way from the Next Phase button)
             task_was_cheated = any(
                 phase.get('cheated', False) 
                 for phase in self.phase_history
             )
                 
-            # Save the task history to the daily history file with task status
             task_entry = {
                 'phases': self.phase_history,
                 'status': 'Completed with Cheating' if task_was_cheated else 'Completed Clean',
@@ -485,7 +454,6 @@ class TimerWindow(QMainWindow):
             print(f"Error in complete_task: {e}")
 
     def go_to_next_phase(self):
-        """Move to the next phase"""
         # If timer is still running, mark this as cheating
         if not self.is_blinking and self.seconds > 0:
             # The user clicked Next Phase before timer reached 00:00
@@ -505,7 +473,6 @@ class TimerWindow(QMainWindow):
                 # Update existing entry
                 self.phase_history[self.current_phase_index]['cheated'] = True
         
-        # Move to the next phase
         self.current_phase_index += 1
             
         # Check if we've completed all phases
@@ -526,7 +493,6 @@ class TimerWindow(QMainWindow):
             self.stop_blinking()
 
     def update_time_display(self):
-        """Update the timer display"""
         minutes = self.seconds // 60
         seconds = self.seconds % 60
         time_str = f"{minutes:02d}:{seconds:02d}"
@@ -542,10 +508,8 @@ class TimerWindow(QMainWindow):
             self.setWindowTitle("Timer")
 
     def load_saved_settings(self):
-        """Load settings from file"""
         settings = self.settings_manager.load_settings()
         
-        # Load scale but don't apply yet (need UI elements first)
         self.current_scale = settings.get('scale', 1.0)
         
         # Create phase objects from loaded data
@@ -567,7 +531,6 @@ class TimerWindow(QMainWindow):
         self.phase_history = []
 
     def save_current_settings(self):
-        """Save current settings to file"""
         settings = {
             'scale': self.current_scale,
             'phases': self.phases
@@ -577,7 +540,6 @@ class TimerWindow(QMainWindow):
         self.settings_manager.save_settings(settings)
 
     def apply_settings_changes(self, scale_factor, phases):
-        """Apply changes from settings dialog"""
         # Apply size changes
         self.apply_size_change(scale_factor)
         
@@ -598,7 +560,6 @@ class TimerWindow(QMainWindow):
         self.save_current_settings()
 
     def reset_timer_for_current_phase(self):
-        """Reset the timer based on the current phase"""
         if not self.task_active:
             # No active task, always show 00:00
             self.seconds = 0
@@ -611,6 +572,5 @@ class TimerWindow(QMainWindow):
         self.update_time_display()
 
     def apply_initial_scale(self):
-        """Apply the loaded scale after UI elements are created"""
         if hasattr(self, 'current_scale') and self.current_scale != 1.0:
             self.apply_size_change(self.current_scale)

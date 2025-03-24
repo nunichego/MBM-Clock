@@ -2,19 +2,24 @@
     "scale": 1.02,
     "phases": [
         {
-            "name": "Trying youself",
-            "minutes": 0,
-            "seconds": 25
+            "name": "By youself",
+            "minutes": 25,
+            "seconds": 0
         },
         {
-            "name": "Asking LLM for Advice",
-            "minutes": 0,
-            "seconds": 20
+            "name": "Using Google",
+            "minutes": 21,
+            "seconds": 0
         },
         {
-            "name": "Asking LLM for Solution",
-            "minutes": 0,
-            "seconds": 15
+            "name": "Using LLM for a guidance",
+            "minutes": 19,
+            "seconds": 0
+        },
+        {
+            "name": "Using LLM for a solution",
+            "minutes": 15,
+            "seconds": 0
         }
     ]
 }

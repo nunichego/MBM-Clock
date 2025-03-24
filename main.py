@@ -14,28 +14,20 @@ if __name__ == "__main__":
     if hasattr(Qt, 'AA_DisableWindowContextHelpButton'):
         QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
-    # Create the application
     app = QApplication(sys.argv)
     
     # Platform-specific initialization
     if IS_WINDOWS:
-        # Windows-specific initialization
         print("Running on Windows")
     elif IS_MACOS:
-        # macOS-specific initialization
         print("Running on macOS")
     elif IS_LINUX:
-        # Linux-specific initialization
         print("Running on Linux")
     else:
         print(f"Running on unknown platform")
     
     # Create and show the main timer window
     timer_window = TimerWindow()
-    
-    # Example of updating gradient colors
-    # timer_window.update_gradient_colors(QColor(0, 255, 128), QColor(128, 0, 255))
-    
     timer_window.show()
     
     # Start the application event loop

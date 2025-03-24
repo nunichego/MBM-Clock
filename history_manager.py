@@ -4,10 +4,8 @@ import datetime
 from pathlib import Path
 
 class HistoryManager:
-    """Class to manage saving and loading task history by date"""
     
     def __init__(self, history_dir='history'):
-        """Initialize the history manager with the history directory path"""
         # Get the directory where the script is located
         script_dir = os.path.dirname(os.path.abspath(__file__))
         

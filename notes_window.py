@@ -51,145 +51,9 @@ class NotesWindow(QDialog):
         if self.is_blinking:
             QTimer.singleShot(100, self.start_button_blinking)
 
-    # Clean version of start_button_blinking without debug output
-    def start_button_blinking(self):
-        """Start blinking timer with delayed execution to ensure UI is ready"""
-        self.blink_timer = QTimer(self)
-        self.blink_timer.timeout.connect(self.toggle_button_blink)
-        self.blink_timer.start(750)  # Same timing as main timer window
-        
-        # Force an initial toggle to show blinking immediately
-        self.toggle_button_blink()
-
-    def toggle_button_blink(self):
-        """Simplified approach to toggle button colors"""
-        self.blink_state = not self.blink_state
-        
-        # Directly apply styling based on the current scenario
-        if not self.task_active:
-            # No task active = blink New Task button green/blue
-            if self.blink_state:
-                self.action_button.setStyleSheet("QPushButton { background-color: #00C800; }")
-            else:
-                self.action_button.setStyleSheet("QPushButton { background-color: #3C69A0; }")
-        elif self.timer_completed:
-            # Timer completed = blink Next Phase button red/blue
-            if self.blink_state:
-                self.next_phase_button.setStyleSheet("QPushButton { background-color: #FF0000; }")
-            else:
-                self.next_phase_button.setStyleSheet("QPushButton { background-color: #0096C8; }")
-
-
-    def closeEvent(self, event):
-        """Stop the blink timer when the dialog is closed"""
-        if hasattr(self, 'blink_timer') and self.blink_timer.isActive():
-            self.blink_timer.stop()
-        event.accept()
-    
-    def setup_fonts(self):
-        """Set up custom fonts for the application"""
-        # Try to use Calibri if available, otherwise fall back to system sans-serif
-        self.regular_font = QFont("Calibri", 11)
-        self.bold_font = QFont("Calibri", 12)
-        self.bold_font.setBold(True)
-        self.title_font = QFont("Calibri", 16)
-        self.title_font.setBold(True)
-    
-    def create_shadow_effect(self):
-        """Create a shadow effect for the main frame"""
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(20)
-        shadow.setColor(QColor(0, 0, 0, 100))
-        shadow.setOffset(0, 0)
-        return shadow
-    
-    def apply_dark_stylesheet(self):
-        """Apply a modern minimalist theme"""
-        self.setStyleSheet("""
-            QDialog {
-                background-color: transparent;
-            }
-            QFrame#notesContainer {
-                background-color: rgb(40, 40, 40);
-                border-radius: 15px;
-                border: none;
-            }
-            QLabel {
-                color: rgb(240, 240, 240);
-                background-color: transparent;
-                border: none;
-            }
-            QListWidget {
-                background-color: rgb(50, 50, 50);
-                border-radius: 8px;
-                color: white;
-                padding: 8px;
-                border: none;
-                selection-background-color: rgb(60, 60, 60);
-            }
-            QListWidget::item {
-                padding: 4px;
-                border-bottom: 1px solid rgb(70, 70, 70);
-            }
-            QListWidget::item:selected {
-                background-color: rgb(60, 60, 60);
-            }
-            QPushButton {
-                background-color: rgb(55, 55, 55);
-                color: white;
-                border-radius: 8px;
-                padding: 6px 12px;
-                border: none;
-            }
-            QPushButton:hover {
-                background-color: rgb(65, 65, 65);
-            }
-            QPushButton:pressed {
-                background-color: rgb(50, 50, 50);
-            }
-            QPushButton:disabled {
-                background-color: rgb(45, 45, 45);
-                color: rgb(130, 130, 130);
-            }
-            QPushButton#nextPhaseButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
-                                        stop:0 rgb(0, 150, 200), 
-                                        stop:1 rgb(120, 0, 170));
-                color: white;
-            }
-            QPushButton#nextPhaseButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
-                                        stop:0 rgb(0, 170, 220), 
-                                        stop:1 rgb(140, 0, 190));
-            }
-            QPushButton#completeTaskButton {
-                background-color: rgb(40, 120, 40);
-                color: white;
-            }
-            QPushButton#completeTaskButton:hover {
-                background-color: rgb(45, 135, 45);
-            }
-            QPushButton#newTaskButton {
-                background-color: rgb(60, 105, 160);
-                color: white;
-            }
-            QPushButton#newTaskButton:hover {
-                background-color: rgb(65, 115, 175);
-            }
-            QDateEdit {
-                background-color: rgb(55, 55, 55);
-                color: white;
-                border-radius: 8px;
-                padding: 6px;
-                border: none;
-            }
-        """)
-    
     def setup_ui(self):
-        # Initialize fonts
         self.setup_fonts()
         
-        # Main layout with margins for shadow effect
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(15, 15, 15, 15)
         
@@ -323,12 +187,8 @@ class NotesWindow(QDialog):
         container_layout.addLayout(buttons_layout)
         main_layout.addWidget(container)
         
-        # Connect remaining buttons
         self.next_phase_button.clicked.connect(self.request_next_phase)
         self.close_button.clicked.connect(self.reject)
-
-        # A more direct approach for setup_ui to force blinking to work
-        # Add this at the end of setup_ui method, just before setting the minimum size
 
         # Setup button blinking if needed
         if not self.task_active or self.timer_completed:
@@ -342,22 +202,145 @@ class NotesWindow(QDialog):
         
         # Set size for dialog
         self.setMinimumSize(500, 600)
+
+    # Clean version of start_button_blinking without debug output
+    def start_button_blinking(self):
+        self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self.toggle_button_blink)
+        self.blink_timer.start(750)  # Same timing as main timer window
+        
+        # Force an initial toggle to show blinking immediately
+        self.toggle_button_blink()
+
+    def toggle_button_blink(self):
+        self.blink_state = not self.blink_state
+        
+        # Directly apply styling based on the current scenario
+        if not self.task_active:
+            # No task active = blink New Task button green/blue
+            if self.blink_state:
+                self.action_button.setStyleSheet("QPushButton { background-color: #00C800; }")
+            else:
+                self.action_button.setStyleSheet("QPushButton { background-color: #3C69A0; }")
+        elif self.timer_completed:
+            # Timer completed = blink Next Phase button red/blue
+            if self.blink_state:
+                self.next_phase_button.setStyleSheet("QPushButton { background-color: #FF0000; }")
+            else:
+                self.next_phase_button.setStyleSheet("QPushButton { background-color: #0096C8; }")
+
+
+    def closeEvent(self, event):
+        if hasattr(self, 'blink_timer') and self.blink_timer.isActive():
+            self.blink_timer.stop()
+        event.accept()
+    
+    def setup_fonts(self):
+        # Try to use Calibri if available, otherwise fall back to system sans-serif
+        self.regular_font = QFont("Calibri", 11)
+        self.bold_font = QFont("Calibri", 12)
+        self.bold_font.setBold(True)
+        self.title_font = QFont("Calibri", 16)
+        self.title_font.setBold(True)
+    
+    def create_shadow_effect(self):
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(20)
+        shadow.setColor(QColor(0, 0, 0, 100))
+        shadow.setOffset(0, 0)
+        return shadow
+    
+    def apply_dark_stylesheet(self):
+        self.setStyleSheet("""
+            QDialog {
+                background-color: transparent;
+            }
+            QFrame#notesContainer {
+                background-color: rgb(40, 40, 40);
+                border-radius: 15px;
+                border: none;
+            }
+            QLabel {
+                color: rgb(240, 240, 240);
+                background-color: transparent;
+                border: none;
+            }
+            QListWidget {
+                background-color: rgb(50, 50, 50);
+                border-radius: 8px;
+                color: white;
+                padding: 8px;
+                border: none;
+                selection-background-color: rgb(60, 60, 60);
+            }
+            QListWidget::item {
+                padding: 4px;
+                border-bottom: 1px solid rgb(70, 70, 70);
+            }
+            QListWidget::item:selected {
+                background-color: rgb(60, 60, 60);
+            }
+            QPushButton {
+                background-color: rgb(55, 55, 55);
+                color: white;
+                border-radius: 8px;
+                padding: 6px 12px;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: rgb(65, 65, 65);
+            }
+            QPushButton:pressed {
+                background-color: rgb(50, 50, 50);
+            }
+            QPushButton:disabled {
+                background-color: rgb(45, 45, 45);
+                color: rgb(130, 130, 130);
+            }
+            QPushButton#nextPhaseButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                        stop:0 rgb(0, 150, 200), 
+                                        stop:1 rgb(120, 0, 170));
+                color: white;
+            }
+            QPushButton#nextPhaseButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                        stop:0 rgb(0, 170, 220), 
+                                        stop:1 rgb(140, 0, 190));
+            }
+            QPushButton#completeTaskButton {
+                background-color: rgb(40, 120, 40);
+                color: white;
+            }
+            QPushButton#completeTaskButton:hover {
+                background-color: rgb(45, 135, 45);
+            }
+            QPushButton#newTaskButton {
+                background-color: rgb(60, 105, 160);
+                color: white;
+            }
+            QPushButton#newTaskButton:hover {
+                background-color: rgb(65, 115, 175);
+            }
+            QDateEdit {
+                background-color: rgb(55, 55, 55);
+                color: white;
+                border-radius: 8px;
+                padding: 6px;
+                border: none;
+            }
+        """)
     
     def load_current_date_history(self):
-        """Load history for the currently selected date"""
-        # Skip if no history manager
         if not self.history_manager:
             return
-            
-        # Clear the lists
+             
         self.tasks_list.clear()
         self.task_details_list.clear()
         
-        # Get the selected date
         qdate = self.date_selector.date()
         date_str = f"{qdate.year()}-{qdate.month():02d}-{qdate.day():02d}"
         
-        # Load history for this date
         history = self.history_manager.load_daily_history(date_str)
         
         # Add tasks to the list
@@ -379,32 +362,25 @@ class NotesWindow(QDialog):
             self.tasks_list.addItem(item)
     
     def date_changed(self, qdate):
-        """Handle date selection change"""
         self.load_current_date_history()
     
     def task_selected(self, row):
-        """Handle task selection"""
         if row < 0 or not self.history_manager:
             return
             
-        # Clear details list
         self.task_details_list.clear()
         
-        # Get the selected date
         qdate = self.date_selector.date()
         date_str = f"{qdate.year()}-{qdate.month():02d}-{qdate.day():02d}"
         
-        # Load history for this date
         history = self.history_manager.load_daily_history(date_str)
         
-        # Make sure row is valid
         if 0 <= row < len(history):
             task = history[row]
             phases = task.get('phases', [])
             task_status = task.get('status', 'Completed')
             task_name = task.get('task_name', f"Task {row+1}")
             
-            # Add task name and status as the first items
             name_item = QListWidgetItem(f"Task Name: {task_name}")
             name_item.setForeground(QColor(255, 255, 255))  # White
             self.task_details_list.addItem(name_item)
@@ -416,10 +392,8 @@ class NotesWindow(QDialog):
                 status_item.setForeground(QColor(255, 165, 0))    # Orange
             self.task_details_list.addItem(status_item)
             
-            # Add separator
             self.task_details_list.addItem("------ Phase Details ------")
             
-            # Add phase details
             for i, phase in enumerate(phases):
                 name = phase.get('name', f"Phase {i+1}")
                 status = phase.get('status', 'Unknown')
@@ -431,7 +405,6 @@ class NotesWindow(QDialog):
                 
                 item = QListWidgetItem(f"Phase {i+1}: {name} - {status_text}")
                 
-                # Set color based on status
                 if status == 'Finished':
                     if phase.get('cheated', False):
                         item.setForeground(QColor(255, 165, 0))  # Orange for cheated
@@ -443,17 +416,14 @@ class NotesWindow(QDialog):
                 self.task_details_list.addItem(item)
     
     def request_next_phase(self):
-        """Emit signal to request moving to the next phase"""
         self.nextPhaseRequested.emit()
         self.accept()
     
     def request_task_completion(self):
-        """Emit signal to request completing the entire task"""
         self.taskCompletedRequested.emit()
         self.accept()
     
     def request_new_task(self):
-        """Emit signal to request starting a new task"""
         self.newTaskRequested.emit()
         self.accept()
     
