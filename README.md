@@ -1,4 +1,4 @@
-# MBM-Clock (Mind Before Machine)
+# MBM-Clock
 
 A productivity tool that helps you manage your approach to problem-solving with a focus on using your own thinking before resorting to AI assistance.
 
