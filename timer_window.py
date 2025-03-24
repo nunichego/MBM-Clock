@@ -25,6 +25,9 @@ class TimerWindow(QMainWindow):
     
         # Load saved settings
         self.load_saved_settings()
+
+        # Load saved settings
+        self.load_saved_settings()
         
         # Initialize timer variable (but don't start the timer yet)
         self.seconds = 0  # Will be set properly later
@@ -45,6 +48,7 @@ class TimerWindow(QMainWindow):
         self.blink_timer.timeout.connect(self.toggle_blink_state)
         self.blink_state = False
         self.original_colors = (QColor(0, 255, 255), QColor(255, 0, 255))  # Store original gradient colors
+        # Store original gradient colors for all components
         self.initial_state = True  # Track if this is initial app start
         
         # Create central widget
@@ -272,35 +276,48 @@ class TimerWindow(QMainWindow):
             phase = self.phases[self.current_phase_index]
             self.setWindowTitle(f"{phase.name}")
 
-    def start_blinking(self, initial=False):
-        """Start the timer blinking when phase is complete or at startup"""
-        self.is_blinking = True
-        self.blink_timer.start(750)  # Blink every 0.75 seconds
-        self.initial_state = initial
-        
-        # Stop the main timer
-        self.timer.stop()
-
     def toggle_blink_state(self):
         """Toggle the blinking state"""
         self.blink_state = not self.blink_state
         
-        if self.initial_state:
-            # Blinking green for new task
+        if self.initial_state:  # Blinking green for new task
             if self.blink_state:
                 # Change to green color scheme
-                self.time_label.setGradientColors(QColor(0, 200, 0), QColor(100, 255, 100))
+                green_start = QColor(0, 200, 0)
+                green_end = QColor(100, 255, 100)
+                self.time_label.setGradientColors(green_start, green_end)
+                self.note_button.setGradientColors(green_start, green_end)
             else:
                 # Change back to original color scheme
                 self.time_label.setGradientColors(self.original_colors[0], self.original_colors[1])
-        else:
-            # Blinking red for phase completion
+                self.note_button.setGradientColors(self.original_colors[0], self.original_colors[1])
+        else:  # Blinking red for phase completion
             if self.blink_state:
                 # Change to red color scheme
-                self.time_label.setGradientColors(QColor(255, 0, 0), QColor(255, 100, 0))
+                red_start = QColor(255, 0, 0)
+                red_end = QColor(255, 100, 0)
+                self.time_label.setGradientColors(red_start, red_end)
+                self.note_button.setGradientColors(red_start, red_end)
             else:
                 # Change back to original color scheme
                 self.time_label.setGradientColors(self.original_colors[0], self.original_colors[1])
+                self.note_button.setGradientColors(self.original_colors[0], self.original_colors[1])
+
+    def start_blinking(self, initial=False):
+        """Start the timer blinking when phase is complete or at startup"""
+        self.is_blinking = True
+        self.initial_state = initial
+        
+        # Ensure seconds is 0 if in initial state (no task active)
+        if initial and not self.task_active:
+            self.seconds = 0
+            self.update_time_display()
+        
+        # Start blinking timer
+        self.blink_timer.start(750)  # Blink every 0.75 seconds
+        
+        # Stop the main timer
+        self.timer.stop()
 
     def stop_blinking(self):
         """Stop the timer blinking"""
@@ -309,8 +326,9 @@ class TimerWindow(QMainWindow):
             self.blink_timer.stop()
             self.initial_state = False
             
-            # Restore original colors
+            # Restore original colors for all elements
             self.time_label.setGradientColors(self.original_colors[0], self.original_colors[1])
+            self.note_button.setGradientColors(self.original_colors[0], self.original_colors[1])
 
     def open_notes(self):
         """Open the notes window"""
@@ -344,19 +362,32 @@ class TimerWindow(QMainWindow):
         self.show_notes_window(timer_completed)
 
     def show_notes_window(self, timer_completed=False):
-        """Show the notes window"""
+        """Show the notes window with proper blinking parameters"""
         # Check if this is the last phase
         is_last_phase = (self.current_phase_index == len(self.phases) - 1)
         
-        # Create and show notes window
+        # Determine the correct blinking state
+        if timer_completed:
+            is_blinking = True  # Timer completed, should blink
+            initial_state = False  # Not initial state (red blinking)
+        elif not self.task_active:
+            is_blinking = True  # No active task, should blink
+            initial_state = True  # Initial state (green blinking)
+        else:
+            is_blinking = self.is_blinking
+            initial_state = self.initial_state
+        
+        # Create and show notes window with explicit parameters
         self.notes_dialog = NotesWindow(
-            self, 
+            parent=self, 
             current_phase=self.current_phase_index,
             is_last_phase=is_last_phase,
             timer_completed=timer_completed,
             history_manager=self.history_manager,
             task_active=self.task_active,
-            current_task_name=self.current_task_name
+            current_task_name=self.current_task_name,
+            is_blinking=is_blinking,
+            initial_state=initial_state
         )
         
         # Connect signals
@@ -364,8 +395,8 @@ class TimerWindow(QMainWindow):
         self.notes_dialog.taskCompletedRequested.connect(self.complete_task)
         self.notes_dialog.newTaskRequested.connect(self.start_new_task)
         
-        # Show the dialog
-        self.notes_dialog.show()
+        # Show the dialog - using exec_() makes it modal
+        self.notes_dialog.exec_()
 
     def start_new_task(self):
         """Start a new task by showing the task name dialog"""
@@ -501,10 +532,14 @@ class TimerWindow(QMainWindow):
         time_str = f"{minutes:02d}:{seconds:02d}"
         self.time_label.setText(time_str)
         
-        # Show the current task name and phase name in the window title
+        # Show appropriate window title
         if self.task_active:
-            phase = self.phases[self.current_phase_index]
-            self.setWindowTitle(f"{self.current_task_name} - {phase.name}")
+            if self.current_phase_index < len(self.phases):
+                phase = self.phases[self.current_phase_index]
+                self.setWindowTitle(f"{self.current_task_name} - {phase.name}")
+        else:
+            # No active task
+            self.setWindowTitle("Timer")
 
     def load_saved_settings(self):
         """Load settings from file"""
@@ -549,11 +584,31 @@ class TimerWindow(QMainWindow):
         # Update phases
         self.phases = phases
         
-        # Reset the timer for the current phase
+        # Reset the timer for the current phase - this will now respect task_active state
         self.reset_timer_for_current_phase()
+        
+        # Only start the timer if a task is active, otherwise go back to blinking state
+        if self.task_active:
+            self.timer.start(1000)
+        else:
+            # Start blinking green for new task again
+            self.start_blinking(initial=True)
         
         # Save settings to file
         self.save_current_settings()
+
+    def reset_timer_for_current_phase(self):
+        """Reset the timer based on the current phase"""
+        if not self.task_active:
+            # No active task, always show 00:00
+            self.seconds = 0
+        elif self.current_phase_index < len(self.phases):
+            # Active task, set timer to phase duration
+            phase = self.phases[self.current_phase_index]
+            self.seconds = phase.get_total_seconds()
+        
+        # Update the display
+        self.update_time_display()
 
     def apply_initial_scale(self):
         """Apply the loaded scale after UI elements are created"""

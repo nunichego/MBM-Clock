@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                            QPushButton, QFrame, QListWidget, QListWidgetItem,
                            QApplication, QDateEdit, QWidget, QGraphicsDropShadowEffect)
-from PyQt5.QtCore import Qt, pyqtSignal, QDate
+from PyQt5.QtCore import Qt, pyqtSignal, QDate, QTimer
 from PyQt5.QtGui import QFont, QColor
 import datetime
 
@@ -14,7 +14,7 @@ class NotesWindow(QDialog):
     newTaskRequested = pyqtSignal()
     
     def __init__(self, parent=None, current_phase=0, is_last_phase=False, timer_completed=False, 
-                 history_manager=None, task_active=False, current_task_name=""):
+         history_manager=None, task_active=False, current_task_name="", is_blinking=False, initial_state=False):
         super().__init__(parent)
         # Remove default window frame and set always on top
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -27,6 +27,11 @@ class NotesWindow(QDialog):
         self.history_manager = history_manager
         self.task_active = task_active
         self.current_task_name = current_task_name
+        
+        # Store blinking state from parent timer window
+        self.is_blinking = is_blinking
+        self.initial_state = initial_state
+        self.blink_state = False  # Initial blink state
         
         # Initialize dragPos for mouse events
         self.dragPos = None
@@ -41,6 +46,45 @@ class NotesWindow(QDialog):
         desktop = QApplication.desktop()
         screen_rect = desktop.availableGeometry(self)
         self.move(screen_rect.center() - self.rect().center())
+        
+        # Trigger blinking - do this in a QTimer.singleShot to ensure UI is fully setup
+        if self.is_blinking:
+            QTimer.singleShot(100, self.start_button_blinking)
+
+    # Clean version of start_button_blinking without debug output
+    def start_button_blinking(self):
+        """Start blinking timer with delayed execution to ensure UI is ready"""
+        self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self.toggle_button_blink)
+        self.blink_timer.start(750)  # Same timing as main timer window
+        
+        # Force an initial toggle to show blinking immediately
+        self.toggle_button_blink()
+
+    def toggle_button_blink(self):
+        """Simplified approach to toggle button colors"""
+        self.blink_state = not self.blink_state
+        
+        # Directly apply styling based on the current scenario
+        if not self.task_active:
+            # No task active = blink New Task button green/blue
+            if self.blink_state:
+                self.action_button.setStyleSheet("QPushButton { background-color: #00C800; }")
+            else:
+                self.action_button.setStyleSheet("QPushButton { background-color: #3C69A0; }")
+        elif self.timer_completed:
+            # Timer completed = blink Next Phase button red/blue
+            if self.blink_state:
+                self.next_phase_button.setStyleSheet("QPushButton { background-color: #FF0000; }")
+            else:
+                self.next_phase_button.setStyleSheet("QPushButton { background-color: #0096C8; }")
+
+
+    def closeEvent(self, event):
+        """Stop the blink timer when the dialog is closed"""
+        if hasattr(self, 'blink_timer') and self.blink_timer.isActive():
+            self.blink_timer.stop()
+        event.accept()
     
     def setup_fonts(self):
         """Set up custom fonts for the application"""
@@ -252,17 +296,14 @@ class NotesWindow(QDialog):
             self.action_button.setObjectName("completeTaskButton")
             self.action_button.clicked.connect(self.request_task_completion)
         
-        # Set font for action button
+         # Set font for action button
         self.action_button.setFont(self.bold_font)
         
         # Next Phase button
         self.next_phase_button = QPushButton("Next Phase")
         self.next_phase_button.setObjectName("nextPhaseButton")
         self.next_phase_button.setFont(self.bold_font)
-        
-        # Disable Next Phase button if:
-        # - No task is active, or
-        # - We're on the last phase and timer is completed
+            
         if not self.task_active or (self.is_last_phase and self.timer_completed):
             self.next_phase_button.setEnabled(False)
             if not self.task_active:
@@ -285,6 +326,19 @@ class NotesWindow(QDialog):
         # Connect remaining buttons
         self.next_phase_button.clicked.connect(self.request_next_phase)
         self.close_button.clicked.connect(self.reject)
+
+        # A more direct approach for setup_ui to force blinking to work
+        # Add this at the end of setup_ui method, just before setting the minimum size
+
+        # Setup button blinking if needed
+        if not self.task_active or self.timer_completed:
+            # Create a button blinking timer
+            self.blink_timer = QTimer(self)
+            self.blink_timer.timeout.connect(self.toggle_button_blink)
+            self.blink_timer.start(750)
+            
+            # Force an initial blink to see immediate effect
+            self.toggle_button_blink()
         
         # Set size for dialog
         self.setMinimumSize(500, 600)
