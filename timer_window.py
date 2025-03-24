@@ -104,7 +104,7 @@ class TimerWindow(QMainWindow):
         layout.addLayout(buttons_layout)
         
         # Set up initial position and size
-        self.setGeometry(50, 900, 200, 80)
+        self.setGeometry(50, 850, 200, 80)
         
         # Variables for dragging
         self.dragging = False
