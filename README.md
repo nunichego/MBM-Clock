@@ -93,11 +93,6 @@ Run the application:
 python main.py
 ```
 
-On Windows, you can also use the included batch file:
-```
-run_timer.bat
-```
-
 ## Usage Guide
 
 ### Main Timer Window
