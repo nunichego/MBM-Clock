@@ -2,7 +2,7 @@
 
 A productivity tool that helps you manage your approach to problem-solving with a focus on using your own thinking before resorting to AI assistance.
 
-![image](https://github.com/user-attachments/assets/ef8bac79-0852-4886-964d-235e8e874251)
+![Screenshot 2025-03-24 205302](https://github.com/user-attachments/assets/ae9a9383-7588-42e7-a024-eb477d81443b)
 
 ## Overview
 
