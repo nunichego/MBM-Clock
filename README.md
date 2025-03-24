@@ -2,6 +2,8 @@
 
 A productivity tool that helps you manage your approach to problem-solving with a focus on using your own thinking before resorting to AI assistance.
 
+![image](https://github.com/user-attachments/assets/ef8bac79-0852-4886-964d-235e8e874251)
+
 ## Overview
 
 Mind Before Machine is a customizable multi-phase timer application that helps you structure your problem-solving process by encouraging thoughtful engagement with challenges before turning to AI tools. This approach promotes deeper learning, better retention, and more creative solutions.
